@@ -4,15 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ConDIVISAS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        body {
             background-color: #020617;
             color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .card {
+            background-color: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header h1 i {
+            color: #fbbf24;
+        }
+        .header p {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .field-group {
+            margin-bottom: 12px;
+        }
+        .field-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .input-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .input-box input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 14px 100px 14px 14px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            outline: none;
+        }
+        .input-box input.result {
+            color: #34d399;
+        }
+        .select-wrapper {
+            position: absolute;
+            right: 8px;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 4px 8px;
+        }
+        .select-wrapper select {
+            background: transparent;
+            border: none;
+            color: #818cf8;
+            font-weight: 800;
+            font-size: 0.875rem;
+            outline: none;
+            cursor: pointer;
+        }
+        .select-wrapper select.to-select {
+            color: #34d399;
+        }
+        .select-wrapper select option {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .swap-container {
+            display: flex;
+            justify-content: center;
+            margin: -6px 0;
+            position: relative;
+            z-index: 10;
+        }
+        .swap-btn {
+            background-color: #1e293b;
+            border: 2px solid #0f172a;
+            color: #818cf8;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .swap-btn:hover {
+            background-color: #4f46e5;
+            color: #ffffff;
+        }
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .refresh-btn:hover {
+            color: #818cf8;
         }
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
@@ -22,154 +159,133 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-        select option {
-            background-color: #0f172a !important;
-            color: #f8fafc !important;
-            padding: 10px;
-            font-weight: 700;
-        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
+<body>
 
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl my-auto">
-        
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                    <i class="fa-solid fa-coins text-amber-400"></i> ConDIVISAS
-                </h1>
-                <p class="text-xs text-slate-400 font-medium">Cotizaciones en tiempo real</p>
-            </div>
+    <div class="card">
+        <div class="header">
+            <h1><i class="fa-solid fa-coins"></i> ConDIVISAS</h1>
+            <p>Cotizaciones en tiempo real</p>
         </div>
 
-        <form id="converterForm" class="space-y-4" onsubmit="event.preventDefault();">
-            
-            <!-- Campo Divisa Origen -->
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Monto a Convertir</label>
-                <div class="relative flex items-center bg-slate-800 border border-slate-700/80 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all overflow-hidden">
-                    <input type="number" id="amount" value="100" min="0" step="any" placeholder="0.00" 
-                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-extrabold text-white focus:outline-none">
-                    
-                    <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <select id="fromCurrency" class="bg-transparent text-sm font-black text-indigo-400 focus:outline-none cursor-pointer">
-                        </select>
+        <form onsubmit="return false;">
+            <div class="field-group">
+                <label class="field-label">Monto a Convertir</label>
+                <div class="input-box">
+                    <input type="number" id="amount" value="100" min="0" step="any" placeholder="0.00">
+                    <div class="select-wrapper">
+                        <select id="fromCurrency"></select>
                     </div>
                 </div>
             </div>
 
-            <!-- Botón para Invertir Conversión -->
-            <div class="flex justify-center -my-2 relative z-10">
-                <button type="button" id="swapBtn" title="Invertir divisas" class="bg-slate-800 hover:bg-indigo-600 text-indigo-400 hover:text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 active:scale-90 transition-all cursor-pointer">
-                    <i class="fa-solid fa-arrows-up-down text-base"></i>
+            <div class="swap-container">
+                <button type="button" id="swapBtn" class="swap-btn" title="Invertir divisas">
+                    <i class="fa-solid fa-arrows-up-down"></i>
                 </button>
             </div>
 
-            <!-- Campo Divisa Destino -->
-            <div class="space-y-1.5">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resultado Convertido</label>
-                <div class="relative flex items-center bg-slate-800/80 border border-slate-700/80 rounded-2xl transition-all overflow-hidden">
-                    <input type="text" id="resultAmount" readonly value="0.00" 
-                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-extrabold text-emerald-400 focus:outline-none cursor-default">
-                    
-                    <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <select id="toCurrency" class="bg-transparent text-sm font-black text-emerald-400 focus:outline-none cursor-pointer">
-                        </select>
+            <div class="field-group">
+                <label class="field-label">Resultado Convertido</label>
+                <div class="input-box">
+                    <input type="text" id="resultAmount" class="result" readonly value="0.00">
+                    <div class="select-wrapper">
+                        <select id="toCurrency" class="to-select"></select>
                     </div>
                 </div>
             </div>
 
-            <div class="pt-2 flex justify-between items-center text-xs text-slate-400">
-                <span id="rateInfo" class="font-medium">Cargando cotización...</span>
-                <button type="button" id="refreshBtn" class="hover:text-indigo-400 transition-colors p-1 cursor-pointer" title="Actualizar cotizaciones">
+            <div class="footer-info">
+                <span id="rateInfo">Cargando cotización...</span>
+                <button type="button" id="refreshBtn" class="refresh-btn" title="Actualizar">
                     <i class="fa-solid fa-rotate-right"></i>
                 </button>
             </div>
-
         </form>
     </div>
 
     <script>
-        const currencies = [
-            { code: "USD" }, { code: "ARS" }, { code: "CLP" }, 
-            { code: "EUR" }, { code: "BRL" }, { code: "MXN" }, 
-            { code: "UYU" }, { code: "COP" }, { code: "GBP" }
-        ];
+        document.addEventListener('DOMContentLoaded', function() {
+            var currencies = [
+                { code: "USD" }, { code: "ARS" }, { code: "CLP" }, 
+                { code: "EUR" }, { code: "BRL" }, { code: "MXN" }, 
+                { code: "UYU" }, { code: "COP" }, { code: "GBP" }
+            ];
 
-        let ratesData = {};
+            var ratesData = {};
 
-        const fromSelect = document.getElementById('fromCurrency');
-        const toSelect = document.getElementById('toCurrency');
-        const amountInput = document.getElementById('amount');
-        const resultInput = document.getElementById('resultAmount');
-        const swapBtn = document.getElementById('swapBtn');
-        const rateInfo = document.getElementById('rateInfo');
-        const refreshBtn = document.getElementById('refreshBtn');
+            var fromSelect = document.getElementById('fromCurrency');
+            var toSelect = document.getElementById('toCurrency');
+            var amountInput = document.getElementById('amount');
+            var resultInput = document.getElementById('resultAmount');
+            var swapBtn = document.getElementById('swapBtn');
+            var rateInfo = document.getElementById('rateInfo');
+            var refreshBtn = document.getElementById('refreshBtn');
 
-        function populateSelects() {
-            fromSelect.innerHTML = '';
-            toSelect.innerHTML = '';
-            currencies.forEach(c => {
-                fromSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
-                toSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
-            });
-            fromSelect.value = 'USD';
-            toSelect.value = 'ARS';
-        }
+            function populateSelects() {
+                fromSelect.innerHTML = '';
+                toSelect.innerHTML = '';
+                for (var i = 0; i < currencies.length; i++) {
+                    var c = currencies[i].code;
+                    fromSelect.innerHTML += '<option value="' + c + '">' + c + '</option>';
+                    toSelect.innerHTML += '<option value="' + c + '">' + c + '</option>';
+                }
+                fromSelect.value = 'USD';
+                toSelect.value = 'ARS';
+            }
 
-        async function fetchRates() {
-            try {
+            function fetchRates() {
                 rateInfo.textContent = "Actualizando tasas...";
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                const data = await res.json();
-                ratesData = data.rates;
+                fetch('https://open.er-api.com/v6/latest/USD')
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        ratesData = data.rates;
+                        calculateConversion();
+                    })
+                    .catch(function(err) {
+                        rateInfo.textContent = "Error de conexión";
+                    });
+            }
+
+            function calculateConversion() {
+                var amount = parseFloat(amountInput.value);
+                var from = fromSelect.value;
+                var to = toSelect.value;
+
+                if (isNaN(amount) || amount <= 0) {
+                    resultInput.value = "0.00";
+                    rateInfo.textContent = "1 " + from + " = -- " + to;
+                    return;
+                }
+
+                if (!ratesData || !ratesData[from] || !ratesData[to]) return;
+
+                var fromRate = ratesData[from];
+                var toRate = ratesData[to];
+                var converted = (amount / fromRate) * toRate;
+                var unitRate = (1 / fromRate) * toRate;
+
+                resultInput.value = converted.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                rateInfo.textContent = "1 " + from + " = " + unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 }) + " " + to;
+            }
+
+            amountInput.addEventListener('input', calculateConversion);
+            fromSelect.addEventListener('change', calculateConversion);
+            toSelect.addEventListener('change', calculateConversion);
+
+            swapBtn.addEventListener('click', function() {
+                var temp = fromSelect.value;
+                fromSelect.value = toSelect.value;
+                toSelect.value = temp;
                 calculateConversion();
-            } catch (err) {
-                rateInfo.textContent = "Error al conectar con el servidor.";
-            }
-        }
+            });
 
-        function calculateConversion() {
-            const amount = parseFloat(amountInput.value);
-            const from = fromSelect.value;
-            const to = toSelect.value;
+            refreshBtn.addEventListener('click', fetchRates);
 
-            if (isNaN(amount) || amount <= 0) {
-                resultInput.value = "0.00";
-                rateInfo.textContent = `1 ${from} = -- ${to}`;
-                return;
-            }
-
-            if (!ratesData || !ratesData[from] || !ratesData[to]) return;
-
-            const fromRate = ratesData[from];
-            const toRate = ratesData[to];
-            const converted = (amount / fromRate) * toRate;
-            const unitRate = (1 / fromRate) * toRate;
-
-            resultInput.value = converted.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}`;
-        }
-
-        amountInput.addEventListener('input', calculateConversion);
-        fromSelect.addEventListener('change', calculateConversion);
-        toSelect.addEventListener('change', calculateConversion);
-
-        swapBtn.addEventListener('click', () => {
-            const temp = fromSelect.value;
-            fromSelect.value = toSelect.value;
-            toSelect.value = temp;
-            calculateConversion();
-        });
-
-        refreshBtn.addEventListener('click', fetchRates);
-
-        window.onload = () => {
             populateSelects();
             fetchRates();
-        };
+        });
     </script>
 </body>
 </html>
