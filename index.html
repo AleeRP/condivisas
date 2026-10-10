@@ -6,12 +6,10 @@
     <title>ConDIVISAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Fuente más limpia y elegante (Inter) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         body {
-            /* Aplicando la nueva fuente */
             font-family: 'Inter', sans-serif;
             background-color: #020617;
             color: #f8fafc;
@@ -35,25 +33,20 @@
             font-weight: 600;
         }
 
-        /* Barra de desplazamiento (Scrollbar) elegante */
+        /* Scrollbar elegante y personalizado */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
-        
         ::-webkit-scrollbar-track {
-            background: #020617; /* Fondo que combina con el body */
-            border-radius: 10px;
+            background: #020617;
         }
-        
         ::-webkit-scrollbar-thumb {
-            background-color: #334155; /* Slate-700 */
-            border-radius: 10px;
-            border: 2px solid #020617; /* Crea un efecto de padding */
+            background: #1e293b;
+            border-radius: 9999px;
         }
-        
         ::-webkit-scrollbar-thumb:hover {
-            background-color: #4f46e5; /* Indigo-600 para el hover */
+            background: #4f46e5;
         }
     </style>
 </head>
@@ -62,65 +55,61 @@
     <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
         
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-between mb-6">
             <div>
-                <!-- Reducido font-black a font-bold para mayor elegancia -->
-                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+                <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-coins text-amber-400"></i> ConDIVISAS
                 </h1>
-                <p class="text-xs text-slate-400 font-medium mt-1">Cotizaciones en tiempo real</p>
+                <p class="text-xs text-slate-400 font-medium">Cotizaciones en tiempo real</p>
             </div>
         </div>
 
         <form id="converterForm" class="space-y-4" onsubmit="event.preventDefault();">
             
             <!-- Campo Divisa Origen -->
-            <div class="space-y-1">
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CONVERTIR</label>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">CONVERTIR</label>
                 <div class="relative flex items-center bg-slate-800 border border-slate-700/80 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all overflow-hidden">
-                    
                     <input type="number" id="amount" value="100" min="0" step="any" placeholder="0.00" 
-                        class="relative z-10 w-full bg-transparent py-4 pl-4 pr-32 text-2xl font-bold text-white focus:outline-none">
+                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-bold text-white focus:outline-none">
                     
-                    <div class="absolute right-2 z-20 flex items-center bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <select id="fromCurrency" class="bg-transparent text-xs font-bold text-indigo-400 focus:outline-none cursor-pointer max-w-[100px] sm:max-w-[120px] truncate">
-                            <!-- Opciones cargadas con abreviaciones -->
+                    <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 shadow-inner">
+                        <select id="fromCurrency" class="bg-transparent text-xs font-bold text-indigo-400 focus:outline-none cursor-pointer">
+                            <!-- Carga dinámica -->
                         </select>
                     </div>
                 </div>
-                <!-- Explicación de la divisa -->
-                <div class="flex justify-end pr-2">
-                    <span id="fromCurrencyName" class="text-[10px] font-medium text-slate-500 transition-colors">Dólar estadounidense</span>
+                <div class="flex justify-end pr-1">
+                    <p id="fromLabel" class="text-[11px] text-slate-400 font-medium"></p>
                 </div>
             </div>
 
-            <!-- Botón para Invertir Conversión con Flechas Verticales -->
-            <div class="flex justify-center -my-3 relative z-30">
+            <!-- Botón para Invertir Conversión -->
+            <div class="flex justify-center -my-2 relative z-10">
                 <button type="button" id="swapBtn" title="Invertir divisas" class="bg-slate-800 hover:bg-indigo-600 text-indigo-400 hover:text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 active:scale-90 transition-all cursor-pointer">
                     <i class="fa-solid fa-arrows-up-down text-base"></i>
                 </button>
             </div>
 
             <!-- Campo Divisa Destino -->
-            <div class="space-y-1">
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">RESULTADO</label>
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">RESULTADO</label>
                 <div class="relative flex items-center bg-slate-800/80 border border-slate-700/80 rounded-2xl transition-all overflow-hidden">
-                    
                     <input type="text" id="resultAmount" readonly value="0.00" 
-                        class="relative z-10 w-full bg-transparent py-4 pl-4 pr-32 text-2xl font-bold text-emerald-400 focus:outline-none cursor-default">
+                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-bold text-emerald-400 focus:outline-none cursor-default">
                     
-                    <div class="absolute right-2 z-20 flex items-center bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <select id="toCurrency" class="bg-transparent text-xs font-bold text-emerald-400 focus:outline-none cursor-pointer max-w-[100px] sm:max-w-[120px] truncate">
-                            <!-- Opciones cargadas con abreviaciones -->
+                    <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 shadow-inner">
+                        <select id="toCurrency" class="bg-transparent text-xs font-bold text-emerald-400 focus:outline-none cursor-pointer">
+                            <!-- Carga dinámica -->
                         </select>
                     </div>
                 </div>
-                <!-- Explicación de la divisa -->
-                <div class="flex justify-end pr-2">
-                    <span id="toCurrencyName" class="text-[10px] font-medium text-slate-500 transition-colors">Peso argentino</span>
+                <div class="flex justify-end pr-1">
+                    <p id="toLabel" class="text-[11px] text-slate-400 font-medium"></p>
                 </div>
             </div>
 
+            <!-- Pie de tarjeta e información de cotización -->
             <div class="pt-2 flex justify-between items-center text-xs text-slate-400">
                 <span id="rateInfo" class="font-medium">Cargando cotización...</span>
                 <button type="button" id="refreshBtn" class="hover:text-indigo-400 transition-colors p-1 cursor-pointer" title="Actualizar cotizaciones">
@@ -132,20 +121,15 @@
     </div>
 
     <script>
-        // Lista optimizada y ordenada (Favoritos primero, luego alfabético)
         const currencies = [
-            // Principales / Favoritas
             { code: "USD", name: "Dólar estadounidense" },
             { code: "EUR", name: "Euro" },
-            { code: "ARS", name: "Peso argentino" },
-            // Top 10 Mundial restante + Latinoamérica en orden alfabético
-            { code: "AUD", name: "Dólar australiano" },
+            { code: "ARS", name: "Peso argentino (Blue)" },
             { code: "BOB", name: "Boliviano" },
             { code: "BRL", name: "Real brasileño" },
             { code: "CAD", name: "Dólar canadiense" },
             { code: "CHF", name: "Franco suizo" },
             { code: "CLP", name: "Peso chileno" },
-            { code: "CNY", name: "Yuan chino" },
             { code: "COP", name: "Peso colombiano" },
             { code: "GBP", name: "Libra esterlina" },
             { code: "HKD", name: "Dólar de Hong Kong" },
@@ -159,7 +143,6 @@
 
         let ratesData = {};
 
-        // Referencias a los elementos del DOM
         const fromSelect = document.getElementById('fromCurrency');
         const toSelect = document.getElementById('toCurrency');
         const amountInput = document.getElementById('amount');
@@ -167,109 +150,97 @@
         const swapBtn = document.getElementById('swapBtn');
         const rateInfo = document.getElementById('rateInfo');
         const refreshBtn = document.getElementById('refreshBtn');
-        
-        // Referencias de nombres
-        const fromCurrencyName = document.getElementById('fromCurrencyName');
-        const toCurrencyName = document.getElementById('toCurrencyName');
+        const fromLabel = document.getElementById('fromLabel');
+        const toLabel = document.getElementById('toLabel');
 
-        // Rellena los selectores con las divisas
         function populateSelects() {
             fromSelect.innerHTML = '';
             toSelect.innerHTML = '';
-            currencies.forEach(currency => {
-                const optionHtml = `<option value="${currency.code}">${currency.code}</option>`;
-                fromSelect.innerHTML += optionHtml;
-                toSelect.innerHTML += optionHtml;
+            currencies.forEach(c => {
+                fromSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
+                toSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
             });
 
             fromSelect.value = 'USD';
             toSelect.value = 'ARS';
-            updateVisuals();
+            updateDescriptions();
         }
 
-        // Actualiza el texto explicativo
-        function updateVisuals() {
-            const fromData = currencies.find(c => c.code === fromSelect.value);
-            const toData = currencies.find(c => c.code === toSelect.value);
+        function updateDescriptions() {
+            const fromObj = currencies.find(c => c.code === fromSelect.value);
+            const toObj = currencies.find(c => c.code === toSelect.value);
 
-            if (fromData) {
-                fromCurrencyName.textContent = fromData.name;
-            }
-            if (toData) {
-                toCurrencyName.textContent = toData.name;
-            }
+            if (fromObj) fromLabel.textContent = fromObj.name;
+            if (toObj) toLabel.textContent = toObj.name;
         }
 
-        // Obtiene las tasas de conversión de la API
         async function fetchRates() {
             try {
                 rateInfo.textContent = "Actualizando tasas...";
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                const data = await res.json();
-                ratesData = data.rates;
+                
+                // 1. Cotizaciones internacionales generales
+                const resGlobal = await fetch('https://open.er-api.com/v6/latest/USD');
+                const dataGlobal = await resGlobal.json();
+                ratesData = dataGlobal.rates;
+
+                // 2. Consulta en paralelo para Dólar Blue en Argentina
+                try {
+                    const resBlue = await fetch('https://dolarapi.com/v1/dolares/blue');
+                    const dataBlue = await resBlue.json();
+                    if (dataBlue && dataBlue.venta) {
+                        ratesData['ARS'] = dataBlue.venta;
+                    }
+                } catch (e) {
+                    console.warn("No se pudo obtener el Dólar Blue, se usará la cotización oficial como respaldo.", e);
+                }
+
                 calculateConversion();
             } catch (err) {
                 rateInfo.textContent = "Error al conectar con el servidor.";
             }
         }
 
-        // Calcula el resultado de la conversión
         function calculateConversion() {
             const amount = parseFloat(amountInput.value);
             const from = fromSelect.value;
             const to = toSelect.value;
 
-            // Manejo de valores no válidos
+            updateDescriptions();
+
             if (isNaN(amount) || amount <= 0) {
                 resultInput.value = "0.00";
                 rateInfo.textContent = `1 ${from} = -- ${to}`;
                 return;
             }
 
-            // Esperar a que lleguen los datos
             if (!ratesData || !ratesData[from] || !ratesData[to]) {
                 return;
             }
 
             const fromRate = ratesData[from];
             const toRate = ratesData[to];
-            
-            // Fórmula cruzada (pasando por el USD base)
             const converted = (amount / fromRate) * toRate;
             const unitRate = (1 / fromRate) * toRate;
 
-            // Formatear resultados
             resultInput.value = converted.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}`;
+            
+            const isBlueUsed = (from === 'ARS' || to === 'ARS') ? " (Dólar Blue)" : "";
+            rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}${isBlueUsed}`;
         }
 
-        // Event Listeners
         amountInput.addEventListener('input', calculateConversion);
-        
-        fromSelect.addEventListener('change', () => {
-            updateVisuals();
-            calculateConversion();
-        });
-        
-        toSelect.addEventListener('change', () => {
-            updateVisuals();
-            calculateConversion();
-        });
+        fromSelect.addEventListener('change', calculateConversion);
+        toSelect.addEventListener('change', calculateConversion);
 
-        // Invertir Divisas
         swapBtn.addEventListener('click', () => {
             const temp = fromSelect.value;
             fromSelect.value = toSelect.value;
             toSelect.value = temp;
-            
-            updateVisuals();
             calculateConversion();
         });
 
-        // Refrescar cotizaciones
         refreshBtn.addEventListener('click', fetchRates);
 
-        // Inicialización al cargar la ventana
         window.onload = () => {
             populateSelects();
             fetchRates();
