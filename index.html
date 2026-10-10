@@ -32,6 +32,18 @@
             padding: 10px;
             font-weight: 700;
         }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .mic-active {
+            animation: pulse-ring 1.4s infinite;
+            background-color: #ef4444 !important;
+            color: #ffffff !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
@@ -46,6 +58,15 @@
                 </h1>
                 <p class="text-xs text-slate-400 font-medium">Cotizaciones en tiempo real</p>
             </div>
+            <!-- Botón de Micrófono -->
+            <button id="micBtn" type="button" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg transition-all active:scale-95 cursor-pointer" title="Presionar para hablar">
+                <i id="micIcon" class="fa-solid fa-microphone text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Estado de Voz -->
+        <div id="voiceStatus" class="mb-5 p-3 rounded-2xl bg-slate-800/90 border border-slate-700/60 hidden text-center transition-all">
+            <p id="voiceText" class="text-xs font-semibold text-amber-300">Escuchando... habla ahora</p>
         </div>
 
         <form id="converterForm" class="space-y-4" onsubmit="event.preventDefault();">
@@ -59,7 +80,6 @@
                     
                     <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
                         <select id="fromCurrency" class="bg-transparent text-sm font-black text-indigo-400 focus:outline-none cursor-pointer">
-                            <!-- Opciones cargadas con abreviaciones -->
                         </select>
                     </div>
                 </div>
@@ -81,7 +101,6 @@
                     
                     <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
                         <select id="toCurrency" class="bg-transparent text-sm font-black text-emerald-400 focus:outline-none cursor-pointer">
-                            <!-- Opciones cargadas con abreviaciones -->
                         </select>
                     </div>
                 </div>
@@ -99,92 +118,25 @@
 
     <script>
         const currencies = [
-            { code: "USD" },
-            { code: "ARS" },
-            { code: "CLP" },
-            { code: "EUR" },
-            { code: "BRL" },
-            { code: "MXN" },
-            { code: "UYU" },
-            { code: "COP" },
-            { code: "GBP" }
+            { code: "USD", keywords: ["dólares", "dólar", "dolares", "dolar", "usd"] },
+            { code: "ARS", keywords: ["pesos argentinos", "peso argentino", "pesos", "peso", "ars", "argentinos"] },
+            { code: "CLP", keywords: ["pesos chilenos", "peso chileno", "chilenos", "clp"] },
+            { code: "EUR", keywords: ["euros", "euro", "eur"] },
+            { code: "BRL", keywords: ["reales", "real", "brl"] },
+            { code: "MXN", keywords: ["pesos mexicanos", "peso mexicano", "mexicanos", "mxn"] },
+            { code: "UYU", keywords: ["pesos uruguayos", "peso uruguayo", "uruguayos", "uyu"] },
+            { code: "COP", keywords: ["pesos colombianos", "peso colombiano", "colombianos", "cop"] },
+            { code: "GBP", keywords: ["libras", "libra", "gbp"] }
         ];
 
         let ratesData = {};
+        let recognition = null;
+        let isListening = false;
+        let activeStream = null;
 
         const fromSelect = document.getElementById('fromCurrency');
         const toSelect = document.getElementById('toCurrency');
         const amountInput = document.getElementById('amount');
         const resultInput = document.getElementById('resultAmount');
         const swapBtn = document.getElementById('swapBtn');
-        const rateInfo = document.getElementById('rateInfo');
-        const refreshBtn = document.getElementById('refreshBtn');
-
-        function populateSelects() {
-            fromSelect.innerHTML = '';
-            toSelect.innerHTML = '';
-            currencies.forEach(c => {
-                fromSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
-                toSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
-            });
-
-            fromSelect.value = 'USD';
-            toSelect.value = 'ARS';
-        }
-
-        async function fetchRates() {
-            try {
-                rateInfo.textContent = "Actualizando tasas...";
-                const res = await fetch('https://open.er-api.com/v6/latest/USD');
-                const data = await res.json();
-                ratesData = data.rates;
-                calculateConversion();
-            } catch (err) {
-                rateInfo.textContent = "Error al conectar con el servidor.";
-            }
-        }
-
-        function calculateConversion() {
-            const amount = parseFloat(amountInput.value);
-            const from = fromSelect.value;
-            const to = toSelect.value;
-
-            if (isNaN(amount) || amount <= 0) {
-                resultInput.value = "0.00";
-                rateInfo.textContent = `1 ${from} = -- ${to}`;
-                return;
-            }
-
-            if (!ratesData || !ratesData[from] || !ratesData[to]) {
-                return;
-            }
-
-            const fromRate = ratesData[from];
-            const toRate = ratesData[to];
-            const converted = (amount / fromRate) * toRate;
-            const unitRate = (1 / fromRate) * toRate;
-
-            resultInput.value = converted.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}`;
-        }
-
-        amountInput.addEventListener('input', calculateConversion);
-        fromSelect.addEventListener('change', calculateConversion);
-        toSelect.addEventListener('change', calculateConversion);
-
-        swapBtn.addEventListener('click', () => {
-            const temp = fromSelect.value;
-            fromSelect.value = toSelect.value;
-            toSelect.value = temp;
-            calculateConversion();
-        });
-
-        refreshBtn.addEventListener('click', fetchRates);
-
-        window.onload = () => {
-            populateSelects();
-            fetchRates();
-        };
-    </script>
-</body>
-</html>
+        const rateInfo = document.getElementById
