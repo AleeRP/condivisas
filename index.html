@@ -14,8 +14,6 @@
             background-color: #020617;
             color: #f8fafc;
         }
-
-        /* Ocultar flechas de incremento/decremento en input number */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -24,21 +22,17 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-
-        /* Estilos legibles para opciones de los desplegables */
         select option {
             background-color: #0f172a !important;
             color: #f8fafc !important;
             padding: 10px;
             font-weight: 700;
         }
-
         @keyframes pulse-ring {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-
         .mic-active {
             animation: pulse-ring 1.4s infinite;
             background-color: #ef4444 !important;
@@ -48,7 +42,7 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
 
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl my-auto">
         
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
@@ -80,13 +74,12 @@
                     
                     <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
                         <select id="fromCurrency" class="bg-transparent text-sm font-black text-indigo-400 focus:outline-none cursor-pointer">
-                            <!-- Opciones cargadas con abreviaciones -->
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Botón para Invertir Conversión con Flechas Verticales -->
+            <!-- Botón para Invertir Conversión -->
             <div class="flex justify-center -my-2 relative z-10">
                 <button type="button" id="swapBtn" title="Invertir divisas" class="bg-slate-800 hover:bg-indigo-600 text-indigo-400 hover:text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 active:scale-90 transition-all cursor-pointer">
                     <i class="fa-solid fa-arrows-up-down text-base"></i>
@@ -95,7 +88,253 @@
 
             <!-- Campo Divisa Destino -->
             <div class="space-y-1.5">
-                <label class="text-xs font-bold text
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resultado Convertido</label>
+                <div class="relative flex items-center bg-slate-800/80 border border-slate-700/80 rounded-2xl transition-all overflow-hidden">
+                    <input type="text" id="resultAmount" readonly value="0.00" 
+                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-extrabold text-emerald-400 focus:outline-none cursor-default">
+                    
+                    <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
+                        <select id="toCurrency" class="bg-transparent text-sm font-black text-emerald-400 focus:outline-none cursor-pointer">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-between items-center text-xs text-slate-400">
+                <span id="rateInfo" class="font-medium">Cargando cotización...</span>
+                <button type="button" id="refreshBtn" class="hover:text-indigo-400 transition-colors p-1 cursor-pointer" title="Actualizar cotizaciones">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        const currencies = [
+            { code: "USD", keywords: ["dólares", "dólar", "dolares", "dolar", "usd"] },
+            { code: "ARS", keywords: ["pesos argentinos", "peso argentino", "pesos", "peso", "ars", "argentinos"] },
+            { code: "CLP", keywords: ["pesos chilenos", "peso chileno", "chilenos", "clp"] },
+            { code: "EUR", keywords: ["euros", "euro", "eur"] },
+            { code: "BRL", keywords: ["reales", "real", "brl"] },
+            { code: "MXN", keywords: ["pesos mexicanos", "peso mexicano", "mexicanos", "mxn"] },
+            { code: "UYU", keywords: ["pesos uruguayos", "peso uruguayo", "uruguayos", "uyu"] },
+            { code: "COP", keywords: ["pesos colombianos", "peso colombiano", "colombianos", "cop"] },
+            { code: "GBP", keywords: ["libras", "libra", "gbp"] }
+        ];
+
+        let ratesData = {};
+        let recognition = null;
+        let isListening = false;
+
+        const fromSelect = document.getElementById('fromCurrency');
+        const toSelect = document.getElementById('toCurrency');
+        const amountInput = document.getElementById('amount');
+        const resultInput = document.getElementById('resultAmount');
+        const swapBtn = document.getElementById('swapBtn');
+        const rateInfo = document.getElementById('rateInfo');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const micBtn = document.getElementById('micBtn');
+        const micIcon = document.getElementById('micIcon');
+        const voiceStatus = document.getElementById('voiceStatus');
+        const voiceText = document.getElementById('voiceText');
+
+        function populateSelects() {
+            fromSelect.innerHTML = '';
+            toSelect.innerHTML = '';
+            currencies.forEach(c => {
+                fromSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
+                toSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
+            });
+            fromSelect.value = 'USD';
+            toSelect.value = 'ARS';
+        }
+
+        async function fetchRates() {
+            try {
+                rateInfo.textContent = "Actualizando tasas...";
+                const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await res.json();
+                ratesData = data.rates;
+                calculateConversion();
+            } catch (err) {
+                rateInfo.textContent = "Error al conectar con el servidor.";
+            }
+        }
+
+        function calculateConversion() {
+            const amount = parseFloat(amountInput.value);
+            const from = fromSelect.value;
+            const to = toSelect.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                resultInput.value = "0.00";
+                rateInfo.textContent = `1 ${from} = -- ${to}`;
+                return;
+            }
+
+            if (!ratesData || !ratesData[from] || !ratesData[to]) return;
+
+            const fromRate = ratesData[from];
+            const toRate = ratesData[to];
+            const converted = (amount / fromRate) * toRate;
+            const unitRate = (1 / fromRate) * toRate;
+
+            resultInput.value = converted.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}`;
+        }
+
+        function showVoiceMessage(msg, isError = false) {
+            voiceStatus.classList.remove('hidden');
+            voiceText.textContent = msg;
+            voiceText.className = isError ? "text-xs font-semibold text-red-400" : "text-xs font-semibold text-amber-300";
+        }
+
+        function toggleMic() {
+            const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechClass) {
+                alert("Tu navegador no soporta reconocimiento de voz. Usa Google Chrome.");
+                return;
+            }
+
+            if (isListening) {
+                if (recognition) {
+                    try { recognition.stop(); } catch(e){}
+                }
+                return;
+            }
+
+            try {
+                recognition = new SpeechClass();
+                recognition.lang = 'es-AR';
+                recognition.continuous = false;
+                recognition.interimResults = true;
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    micBtn.classList.add('mic-active');
+                    micIcon.className = 'fa-solid fa-microphone-lines text-lg';
+                    showVoiceMessage("Escuchando... habla ahora (ej: 100 dólares a pesos)");
+                };
+
+                recognition.onresult = (event) => {
+                    let transcript = "";
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    showVoiceMessage(`Escuchando: "${transcript}"`);
+                    if (event.results[0].isFinal) {
+                        parseVoiceCommand(transcript.toLowerCase());
+                    }
+                };
+
+                recognition.onerror = (e) => {
+                    showVoiceMessage("Aviso de voz: " + e.error, true);
+                    resetMicUI();
+                };
+
+                recognition.onend = () => {
+                    resetMicUI();
+                };
+
+                recognition.start();
+            } catch (err) {
+                alert("No se pudo iniciar el micrófono. Asegúrate de dar permisos.");
+                resetMicUI();
+            }
+        }
+
+        function resetMicUI() {
+            isListening = false;
+            micBtn.classList.remove('mic-active');
+            micIcon.className = 'fa-solid fa-microphone text-lg';
+            setTimeout(() => {
+                if (!isListening) voiceStatus.classList.add('hidden');
+            }, 3000);
+        }
+
+        function parseVoiceCommand(text) {
+            let num = null;
+            const wordNumbers = {
+                "un": 1, "uno": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+                "diez": 10, "veinte": 20, "cincuenta": 50, "cien": 100, "ciento": 100,
+                "quinientos": 500, "mil": 1000
+            };
+
+            const numMatch = text.match(/\d+([.,]\d+)?/);
+            if (numMatch) {
+                num = parseFloat(numMatch[0].replace(',', '.'));
+            } else {
+                for (let word in wordNumbers) {
+                    if (text.includes(word)) {
+                        num = wordNumbers[word];
+                        break;
+                    }
+                }
+            }
+
+            if (num && !isNaN(num)) {
+                amountInput.value = num;
+            }
+
+            let foundFrom = null;
+            let foundTo = null;
+            const parts = text.split(/\b(a|en|por)\b/i);
+
+            if (parts.length >= 3) {
+                foundFrom = findCurrencyMatch(parts[0]);
+                foundTo = findCurrencyMatch(parts.slice(2).join(' '));
+            } else {
+                const matches = [];
+                currencies.forEach(c => {
+                    c.keywords.forEach(kw => {
+                        if (text.includes(kw)) {
+                            matches.push({ code: c.code, idx: text.indexOf(kw) });
+                        }
+                    });
+                });
+                matches.sort((a, b) => a.idx - b.idx);
+                if (matches.length >= 2) {
+                    foundFrom = matches[0].code;
+                    foundTo = matches[1].code;
+                } else if (matches.length === 1) {
+                    foundTo = matches[0].code;
+                }
+            }
+
+            if (foundFrom) fromSelect.value = foundFrom;
+            if (foundTo) toSelect.value = foundTo;
+
+            calculateConversion();
+        }
+
+        function findCurrencyMatch(subText) {
+            for (const c of currencies) {
+                for (const kw of c.keywords) {
+                    if (subText.includes(kw)) return c.code;
+                }
+            }
+            return null;
+        }
+
+        micBtn.addEventListener('click', toggleMic);
+        amountInput.addEventListener('input', calculateConversion);
+        fromSelect.addEventListener('change', calculateConversion);
+        toSelect.addEventListener('change', calculateConversion);
+
+        swapBtn.addEventListener('click', () => {
+            const temp = fromSelect.value;
+            fromSelect.value = toSelect.value;
+            toSelect.value = temp;
+            calculateConversion();
+        });
+
+        refreshBtn.addEventListener('click', fetchRates);
+
+        window.onload = () => {
+            populateSelects();
+            fetchRates();
         };
     </script>
 </body>
