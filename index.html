@@ -34,6 +34,27 @@
             padding: 10px;
             font-weight: 600;
         }
+
+        /* Barra de desplazamiento (Scrollbar) elegante */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #020617; /* Fondo que combina con el body */
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: #334155; /* Slate-700 */
+            border-radius: 10px;
+            border: 2px solid #020617; /* Crea un efecto de padding */
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #4f46e5; /* Indigo-600 para el hover */
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
@@ -54,43 +75,49 @@
         <form id="converterForm" class="space-y-4" onsubmit="event.preventDefault();">
             
             <!-- Campo Divisa Origen -->
-            <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Monto a Convertir</label>
+            <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CONVERTIR</label>
                 <div class="relative flex items-center bg-slate-800 border border-slate-700/80 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all overflow-hidden">
-                    <!-- Reducido font-extrabold a font-bold -->
-                    <input type="number" id="amount" value="100" min="0" step="any" placeholder="0.00" 
-                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-bold text-white focus:outline-none">
                     
-                    <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <!-- Reducido text-sm a text-xs para que sea levemente más pequeño -->
-                        <select id="fromCurrency" class="bg-transparent text-xs font-bold text-indigo-400 focus:outline-none cursor-pointer">
+                    <input type="number" id="amount" value="100" min="0" step="any" placeholder="0.00" 
+                        class="relative z-10 w-full bg-transparent py-4 pl-4 pr-32 text-2xl font-bold text-white focus:outline-none">
+                    
+                    <div class="absolute right-2 z-20 flex items-center bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
+                        <select id="fromCurrency" class="bg-transparent text-xs font-bold text-indigo-400 focus:outline-none cursor-pointer max-w-[100px] sm:max-w-[120px] truncate">
                             <!-- Opciones cargadas con abreviaciones -->
                         </select>
                     </div>
                 </div>
+                <!-- Explicación de la divisa -->
+                <div class="flex justify-end pr-2">
+                    <span id="fromCurrencyName" class="text-[10px] font-medium text-slate-500 transition-colors">Dólar estadounidense</span>
+                </div>
             </div>
 
             <!-- Botón para Invertir Conversión con Flechas Verticales -->
-            <div class="flex justify-center -my-2 relative z-10">
+            <div class="flex justify-center -my-3 relative z-30">
                 <button type="button" id="swapBtn" title="Invertir divisas" class="bg-slate-800 hover:bg-indigo-600 text-indigo-400 hover:text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 active:scale-90 transition-all cursor-pointer">
                     <i class="fa-solid fa-arrows-up-down text-base"></i>
                 </button>
             </div>
 
             <!-- Campo Divisa Destino -->
-            <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resultado Convertido</label>
+            <div class="space-y-1">
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">RESULTADO</label>
                 <div class="relative flex items-center bg-slate-800/80 border border-slate-700/80 rounded-2xl transition-all overflow-hidden">
-                    <!-- Reducido font-extrabold a font-bold -->
-                    <input type="text" id="resultAmount" readonly value="0.00" 
-                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-bold text-emerald-400 focus:outline-none cursor-default">
                     
-                    <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <!-- Reducido text-sm a text-xs para que sea levemente más pequeño -->
-                        <select id="toCurrency" class="bg-transparent text-xs font-bold text-emerald-400 focus:outline-none cursor-pointer">
+                    <input type="text" id="resultAmount" readonly value="0.00" 
+                        class="relative z-10 w-full bg-transparent py-4 pl-4 pr-32 text-2xl font-bold text-emerald-400 focus:outline-none cursor-default">
+                    
+                    <div class="absolute right-2 z-20 flex items-center bg-slate-900/90 backdrop-blur-sm border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
+                        <select id="toCurrency" class="bg-transparent text-xs font-bold text-emerald-400 focus:outline-none cursor-pointer max-w-[100px] sm:max-w-[120px] truncate">
                             <!-- Opciones cargadas con abreviaciones -->
                         </select>
                     </div>
+                </div>
+                <!-- Explicación de la divisa -->
+                <div class="flex justify-end pr-2">
+                    <span id="toCurrencyName" class="text-[10px] font-medium text-slate-500 transition-colors">Peso argentino</span>
                 </div>
             </div>
 
@@ -105,8 +132,30 @@
     </div>
 
     <script>
-        // Lista simplificada ya que no necesitamos las palabras clave del dictado por voz
-        const currencies = ["USD", "ARS", "CLP", "EUR", "BRL", "MXN", "UYU", "COP", "GBP"];
+        // Lista optimizada y ordenada (Favoritos primero, luego alfabético)
+        const currencies = [
+            // Principales / Favoritas
+            { code: "USD", name: "Dólar estadounidense" },
+            { code: "EUR", name: "Euro" },
+            { code: "ARS", name: "Peso argentino" },
+            // Top 10 Mundial restante + Latinoamérica en orden alfabético
+            { code: "AUD", name: "Dólar australiano" },
+            { code: "BOB", name: "Boliviano" },
+            { code: "BRL", name: "Real brasileño" },
+            { code: "CAD", name: "Dólar canadiense" },
+            { code: "CHF", name: "Franco suizo" },
+            { code: "CLP", name: "Peso chileno" },
+            { code: "CNY", name: "Yuan chino" },
+            { code: "COP", name: "Peso colombiano" },
+            { code: "GBP", name: "Libra esterlina" },
+            { code: "HKD", name: "Dólar de Hong Kong" },
+            { code: "JPY", name: "Yen japonés" },
+            { code: "MXN", name: "Peso mexicano" },
+            { code: "PEN", name: "Sol peruano" },
+            { code: "PYG", name: "Guaraní paraguayo" },
+            { code: "SGD", name: "Dólar de Singapur" },
+            { code: "UYU", name: "Peso uruguayo" }
+        ];
 
         let ratesData = {};
 
@@ -118,18 +167,37 @@
         const swapBtn = document.getElementById('swapBtn');
         const rateInfo = document.getElementById('rateInfo');
         const refreshBtn = document.getElementById('refreshBtn');
+        
+        // Referencias de nombres
+        const fromCurrencyName = document.getElementById('fromCurrencyName');
+        const toCurrencyName = document.getElementById('toCurrencyName');
 
         // Rellena los selectores con las divisas
         function populateSelects() {
             fromSelect.innerHTML = '';
             toSelect.innerHTML = '';
-            currencies.forEach(code => {
-                fromSelect.innerHTML += `<option value="${code}">${code}</option>`;
-                toSelect.innerHTML += `<option value="${code}">${code}</option>`;
+            currencies.forEach(currency => {
+                const optionHtml = `<option value="${currency.code}">${currency.code}</option>`;
+                fromSelect.innerHTML += optionHtml;
+                toSelect.innerHTML += optionHtml;
             });
 
             fromSelect.value = 'USD';
             toSelect.value = 'ARS';
+            updateVisuals();
+        }
+
+        // Actualiza el texto explicativo
+        function updateVisuals() {
+            const fromData = currencies.find(c => c.code === fromSelect.value);
+            const toData = currencies.find(c => c.code === toSelect.value);
+
+            if (fromData) {
+                fromCurrencyName.textContent = fromData.name;
+            }
+            if (toData) {
+                toCurrencyName.textContent = toData.name;
+            }
         }
 
         // Obtiene las tasas de conversión de la API
@@ -177,14 +245,24 @@
 
         // Event Listeners
         amountInput.addEventListener('input', calculateConversion);
-        fromSelect.addEventListener('change', calculateConversion);
-        toSelect.addEventListener('change', calculateConversion);
+        
+        fromSelect.addEventListener('change', () => {
+            updateVisuals();
+            calculateConversion();
+        });
+        
+        toSelect.addEventListener('change', () => {
+            updateVisuals();
+            calculateConversion();
+        });
 
         // Invertir Divisas
         swapBtn.addEventListener('click', () => {
             const temp = fromSelect.value;
             fromSelect.value = toSelect.value;
             toSelect.value = temp;
+            
+            updateVisuals();
             calculateConversion();
         });
 
