@@ -6,14 +6,18 @@
     <title>ConDIVISAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fuente más limpia y elegante (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            /* Aplicando la nueva fuente */
+            font-family: 'Inter', sans-serif;
             background-color: #020617;
             color: #f8fafc;
         }
+
+        /* Ocultar flechas de incremento/decremento en input number */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -22,58 +26,45 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+
+        /* Estilos legibles para opciones de los desplegables */
         select option {
             background-color: #0f172a !important;
             color: #f8fafc !important;
             padding: 10px;
-            font-weight: 700;
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .mic-active {
-            animation: pulse-ring 1.4s infinite;
-            background-color: #ef4444 !important;
-            color: #ffffff !important;
+            font-weight: 600;
         }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
 
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative my-auto">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
         
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                <!-- Reducido font-black a font-bold para mayor elegancia -->
+                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-coins text-amber-400"></i> ConDIVISAS
                 </h1>
-                <p class="text-xs text-slate-400 font-medium">Cotizaciones en tiempo real</p>
+                <p class="text-xs text-slate-400 font-medium mt-1">Cotizaciones en tiempo real</p>
             </div>
-            <!-- Botón de Micrófono -->
-            <button id="micBtn" type="button" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg transition-all active:scale-95 cursor-pointer" title="Presionar para hablar">
-                <i id="micIcon" class="fa-solid fa-microphone text-lg"></i>
-            </button>
-        </div>
-
-        <!-- Estado de Voz -->
-        <div id="voiceStatus" class="mb-5 p-3 rounded-2xl bg-slate-800/90 border border-slate-700/60 hidden text-center transition-all">
-            <p id="voiceText" class="text-xs font-semibold text-amber-300">Escuchando... habla ahora</p>
         </div>
 
         <form id="converterForm" class="space-y-4" onsubmit="event.preventDefault();">
             
             <!-- Campo Divisa Origen -->
             <div class="space-y-1.5">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Monto a Convertir</label>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Monto a Convertir</label>
                 <div class="relative flex items-center bg-slate-800 border border-slate-700/80 rounded-2xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all overflow-hidden">
+                    <!-- Reducido font-extrabold a font-bold -->
                     <input type="number" id="amount" value="100" min="0" step="any" placeholder="0.00" 
-                        class="w-full bg-transparent py-4 pl-4 pr-28 text-2xl font-extrabold text-white focus:outline-none">
+                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-bold text-white focus:outline-none">
                     
                     <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <select id="fromCurrency" class="bg-transparent text-sm font-black text-indigo-400 focus:outline-none cursor-pointer">
+                        <!-- Reducido text-sm a text-xs para que sea levemente más pequeño -->
+                        <select id="fromCurrency" class="bg-transparent text-xs font-bold text-indigo-400 focus:outline-none cursor-pointer">
+                            <!-- Opciones cargadas con abreviaciones -->
                         </select>
                     </div>
                 </div>
@@ -88,13 +79,16 @@
 
             <!-- Campo Divisa Destino -->
             <div class="space-y-1.5">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resultado Convertido</label>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resultado Convertido</label>
                 <div class="relative flex items-center bg-slate-800/80 border border-slate-700/80 rounded-2xl transition-all overflow-hidden">
+                    <!-- Reducido font-extrabold a font-bold -->
                     <input type="text" id="resultAmount" readonly value="0.00" 
-                        class="w-full bg-transparent py-4 pl-4 pr-28 text-2xl font-extrabold text-emerald-400 focus:outline-none cursor-default">
+                        class="w-full bg-transparent py-4 pl-4 pr-24 text-2xl font-bold text-emerald-400 focus:outline-none cursor-default">
                     
                     <div class="absolute right-2 flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 shadow-inner">
-                        <select id="toCurrency" class="bg-transparent text-sm font-black text-emerald-400 focus:outline-none cursor-pointer">
+                        <!-- Reducido text-sm a text-xs para que sea levemente más pequeño -->
+                        <select id="toCurrency" class="bg-transparent text-xs font-bold text-emerald-400 focus:outline-none cursor-pointer">
+                            <!-- Opciones cargadas con abreviaciones -->
                         </select>
                     </div>
                 </div>
@@ -111,23 +105,12 @@
     </div>
 
     <script>
-        const currencies = [
-            { code: "USD", keywords: ["dólares", "dólar", "dolares", "dolar", "usd"] },
-            { code: "ARS", keywords: ["pesos argentinos", "peso argentino", "pesos", "peso", "ars", "argentinos"] },
-            { code: "CLP", keywords: ["pesos chilenos", "peso chileno", "chilenos", "clp"] },
-            { code: "EUR", keywords: ["euros", "euro", "eur"] },
-            { code: "BRL", keywords: ["reales", "real", "brl"] },
-            { code: "MXN", keywords: ["pesos mexicanos", "peso mexicano", "mexicanos", "mxn"] },
-            { code: "UYU", keywords: ["pesos uruguayos", "peso uruguayo", "uruguayos", "uyu"] },
-            { code: "COP", keywords: ["pesos colombianos", "peso colombiano", "colombianos", "cop"] },
-            { code: "GBP", keywords: ["libras", "libra", "gbp"] }
-        ];
+        // Lista simplificada ya que no necesitamos las palabras clave del dictado por voz
+        const currencies = ["USD", "ARS", "CLP", "EUR", "BRL", "MXN", "UYU", "COP", "GBP"];
 
         let ratesData = {};
-        let recognition = null;
-        let isListening = false;
-        let activeStream = null;
 
+        // Referencias a los elementos del DOM
         const fromSelect = document.getElementById('fromCurrency');
         const toSelect = document.getElementById('toCurrency');
         const amountInput = document.getElementById('amount');
@@ -135,30 +118,21 @@
         const swapBtn = document.getElementById('swapBtn');
         const rateInfo = document.getElementById('rateInfo');
         const refreshBtn = document.getElementById('refreshBtn');
-        const micBtn = document.getElementById('micBtn');
-        const micIcon = document.getElementById('micIcon');
-        const voiceStatus = document.getElementById('voiceStatus');
-        const voiceText = document.getElementById('voiceText');
 
+        // Rellena los selectores con las divisas
         function populateSelects() {
             fromSelect.innerHTML = '';
             toSelect.innerHTML = '';
-            currencies.forEach(c => {
-                const opt1 = document.createElement('option');
-                opt1.value = c.code;
-                opt1.textContent = c.code;
-                fromSelect.appendChild(opt1);
-
-                const opt2 = document.createElement('option');
-                opt2.value = c.code;
-                opt2.textContent = c.code;
-                toSelect.appendChild(opt2);
+            currencies.forEach(code => {
+                fromSelect.innerHTML += `<option value="${code}">${code}</option>`;
+                toSelect.innerHTML += `<option value="${code}">${code}</option>`;
             });
 
             fromSelect.value = 'USD';
             toSelect.value = 'ARS';
         }
 
+        // Obtiene las tasas de conversión de la API
         async function fetchRates() {
             try {
                 rateInfo.textContent = "Actualizando tasas...";
@@ -171,189 +145,42 @@
             }
         }
 
+        // Calcula el resultado de la conversión
         function calculateConversion() {
             const amount = parseFloat(amountInput.value);
             const from = fromSelect.value;
             const to = toSelect.value;
 
+            // Manejo de valores no válidos
             if (isNaN(amount) || amount <= 0) {
                 resultInput.value = "0.00";
                 rateInfo.textContent = `1 ${from} = -- ${to}`;
                 return;
             }
 
+            // Esperar a que lleguen los datos
             if (!ratesData || !ratesData[from] || !ratesData[to]) {
                 return;
             }
 
             const fromRate = ratesData[from];
             const toRate = ratesData[to];
+            
+            // Fórmula cruzada (pasando por el USD base)
             const converted = (amount / fromRate) * toRate;
             const unitRate = (1 / fromRate) * toRate;
 
+            // Formatear resultados
             resultInput.value = converted.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}`;
         }
 
-        function showVoiceMessage(msg, isError = false) {
-            voiceStatus.classList.remove('hidden');
-            voiceText.textContent = msg;
-            voiceText.className = isError ? "text-xs font-semibold text-red-400" : "text-xs font-semibold text-amber-300";
-        }
-
-        function stopMicrophone() {
-            isListening = false;
-            micBtn.classList.remove('mic-active');
-            micIcon.className = 'fa-solid fa-microphone text-lg';
-
-            if (recognition) {
-                try { recognition.stop(); } catch(e){}
-            }
-
-            if (activeStream) {
-                activeStream.getTracks().forEach(track => track.stop());
-                activeStream = null;
-            }
-
-            setTimeout(() => {
-                if (!isListening) voiceStatus.classList.add('hidden');
-            }, 4000);
-        }
-
-        async function startListening() {
-            const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechClass) {
-                showVoiceMessage("Tu navegador no soporta el micrófono integrado.", true);
-                return;
-            }
-
-            try {
-                activeStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            } catch (err) {
-                showVoiceMessage("Debes otorgar permiso de micrófono en tu celular.", true);
-                return;
-            }
-
-            recognition = new SpeechClass();
-            recognition.lang = 'es-ES';
-            recognition.continuous = false;
-            recognition.interimResults = true;
-
-            recognition.onstart = () => {
-                isListening = true;
-                micBtn.classList.add('mic-active');
-                micIcon.className = 'fa-solid fa-microphone-lines text-lg';
-                showVoiceMessage("Escuchando... habla ahora (ej: 100 dólares a pesos)");
-            };
-
-            recognition.onresult = (event) => {
-                let currentText = "";
-                for (let i = 0; i < event.results.length; i++) {
-                    currentText += event.results[i][0].transcript;
-                }
-                showVoiceMessage(`Procesando: "${currentText}"`);
-                parseVoiceCommand(currentText.toLowerCase());
-            };
-
-            recognition.onerror = (e) => {
-                if (e.error === 'no-speech') {
-                    showVoiceMessage("No se detectó voz. Vuelve a intentarlo.", true);
-                } else {
-                    showVoiceMessage("Error en micrófono: " + e.error, true);
-                }
-                stopMicrophone();
-            };
-
-            recognition.onend = () => {
-                stopMicrophone();
-            };
-
-            try {
-                recognition.start();
-            } catch (err) {
-                showVoiceMessage("No se pudo iniciar el dictado.", true);
-                stopMicrophone();
-            }
-        }
-
-        function parseVoiceCommand(text) {
-            let num = null;
-            const wordNumbers = {
-                "un": 1, "uno": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
-                "diez": 10, "veinte": 20, "cincuenta": 50, "cien": 100, "ciento": 100,
-                "quinientos": 500, "mil": 1000
-            };
-
-            const numMatch = text.match(/\d+([.,]\d+)?/);
-            if (numMatch) {
-                num = parseFloat(numMatch[0].replace(',', '.'));
-            } else {
-                for (let word in wordNumbers) {
-                    if (text.includes(word)) {
-                        num = wordNumbers[word];
-                        break;
-                    }
-                }
-            }
-
-            if (num && !isNaN(num)) {
-                amountInput.value = num;
-            }
-
-            let foundFrom = null;
-            let foundTo = null;
-
-            const parts = text.split(/\b(a|en|por)\b/i);
-
-            if (parts.length >= 3) {
-                foundFrom = findCurrencyMatch(parts[0]);
-                foundTo = findCurrencyMatch(parts.slice(2).join(' '));
-            } else {
-                const matches = [];
-                currencies.forEach(c => {
-                    c.keywords.forEach(kw => {
-                        if (text.includes(kw)) {
-                            matches.push({ code: c.code, idx: text.indexOf(kw) });
-                        }
-                    });
-                });
-                matches.sort((a, b) => a.idx - b.idx);
-                if (matches.length >= 2) {
-                    foundFrom = matches[0].code;
-                    foundTo = matches[1].code;
-                } else if (matches.length === 1) {
-                    foundTo = matches[0].code;
-                }
-            }
-
-            if (foundFrom) fromSelect.value = foundFrom;
-            if (foundTo) toSelect.value = foundTo;
-
-            calculateConversion();
-        }
-
-        function findCurrencyMatch(subText) {
-            for (const c of currencies) {
-                for (const kw of c.keywords) {
-                    if (subText.includes(kw)) return c.code;
-                }
-            }
-            return null;
-        }
-
-        micBtn.addEventListener('click', () => {
-            if (isListening) {
-                stopMicrophone();
-            } else {
-                startListening();
-            }
-        });
-
+        // Event Listeners
         amountInput.addEventListener('input', calculateConversion);
         fromSelect.addEventListener('change', calculateConversion);
         toSelect.addEventListener('change', calculateConversion);
 
+        // Invertir Divisas
         swapBtn.addEventListener('click', () => {
             const temp = fromSelect.value;
             fromSelect.value = toSelect.value;
@@ -361,8 +188,10 @@
             calculateConversion();
         });
 
+        // Refrescar cotizaciones
         refreshBtn.addEventListener('click', fetchRates);
 
+        // Inicialización al cargar la ventana
         window.onload = () => {
             populateSelects();
             fetchRates();
