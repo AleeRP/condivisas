@@ -14,8 +14,6 @@
             background-color: #020617;
             color: #f8fafc;
         }
-
-        /* Ocultar flechas de incremento/decremento en input number */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -24,21 +22,17 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-
-        /* Estilos legibles para opciones de los desplegables */
         select option {
             background-color: #0f172a !important;
             color: #f8fafc !important;
             padding: 10px;
             font-weight: 700;
         }
-
         @keyframes pulse-ring {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { transform: scale(1.1); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-
         .mic-active {
             animation: pulse-ring 1.4s infinite;
             background-color: #ef4444 !important;
@@ -150,8 +144,15 @@
             fromSelect.innerHTML = '';
             toSelect.innerHTML = '';
             currencies.forEach(c => {
-                fromSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
-                toSelect.innerHTML += `<option value="${c.code}">${c.code}</option>`;
+                const opt1 = document.createElement('option');
+                opt1.value = c.code;
+                opt1.textContent = c.code;
+                fromSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = c.code;
+                opt2.textContent = c.code;
+                toSelect.appendChild(opt2);
             });
 
             fromSelect.value = 'USD';
