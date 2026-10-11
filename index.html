@@ -71,34 +71,104 @@
             visibility: hidden;
             pointer-events: none;
         }
+
+        /* ANIMACIONES DE COLISIÓN DE MONEDAS EN EL SPLASH SCREEN */
+        @keyframes coinDrop {
+            0% { transform: translateY(-45vh) rotate(-180deg) scale(0.5); opacity: 0; }
+            55% { transform: translateY(0) rotate(0deg) scale(1.1); opacity: 1; }
+            63% { transform: translateY(0) scale(0); opacity: 0; }
+            100% { transform: translateY(0) scale(0); opacity: 0; }
+        }
+
+        @keyframes coinRise {
+            0% { transform: translateY(45vh) rotate(180deg) scale(0.5); opacity: 0; }
+            55% { transform: translateY(0) rotate(0deg) scale(1.1); opacity: 1; }
+            63% { transform: translateY(0) scale(0); opacity: 0; }
+            100% { transform: translateY(0) scale(0); opacity: 0; }
+        }
+
+        @keyframes shockwaveRing {
+            0%, 58% { transform: scale(0); opacity: 0; }
+            63% { transform: scale(0.3); opacity: 1; border-width: 6px; }
+            100% { transform: scale(3.5); opacity: 0; border-width: 1px; }
+        }
+
+        @keyframes logoReveal {
+            0%, 60% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            80% { transform: scale(1.12) rotate(3deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes textGlide {
+            0%, 75% { transform: translateY(18px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .anim-coin-top {
+            animation: coinDrop 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .anim-coin-bottom {
+            animation: coinRise 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .anim-shockwave {
+            animation: shockwaveRing 1.2s ease-out forwards;
+        }
+        .anim-logo-badge {
+            animation: logoReveal 1.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .anim-splash-text {
+            animation: textGlide 1.4s ease-out forwards;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
 
-    <div id="splashScreen" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-6 select-none">
-        <div class="flex flex-col items-center space-y-4">
-            <!-- Contenedor del Logo con brillo -->
-            <div class="w-24 h-24 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/10 relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-tr from-indigo-600/20 to-amber-500/10 rounded-3xl"></div>
-                <i class="fa-solid fa-coins text-amber-400 text-5xl relative z-10 animate-bounce"></i>
+    <!-- Pantalla de Inicio / Splash Screen -->
+    <div id="splashScreen" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-6 select-none overflow-hidden">
+        
+        <!-- Escenario de Animación de Colisión -->
+        <div class="relative w-36 h-36 flex items-center justify-center mb-5">
+            
+            <!-- Onda de choque en el punto del impacto -->
+            <div class="absolute w-24 h-24 rounded-full border-amber-400/80 anim-shockwave"></div>
+            
+            <!-- Moneda 1: Ficha Dorada (baja desde arriba) -->
+            <div class="absolute z-20 anim-coin-top flex items-center justify-center">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 border-2 border-amber-200 flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.6)]">
+                    <i class="fa-solid fa-dollar-sign text-slate-950 text-2xl font-black"></i>
+                </div>
             </div>
             
-            <!-- Nombre de la App -->
-            <div class="text-center">
-                <h1 class="text-3xl font-extrabold text-white tracking-tight flex items-center justify-center gap-2">
-                    ConDIVISAS
-                </h1>
-                <p class="text-xs text-slate-400 font-medium mt-1">Cotizaciones en tiempo real</p>
+            <!-- Moneda 2: Ficha Índigo/Azul (sube desde abajo, misma dimensión simétrica) -->
+            <div class="absolute z-20 anim-coin-bottom flex items-center justify-center">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-700 to-indigo-400 border-2 border-indigo-200 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.6)]">
+                    <i class="fa-solid fa-dollar-sign text-white text-2xl font-black"></i>
+                </div>
+            </div>
+
+            <!-- Logo emergente tras la colisión -->
+            <div class="anim-logo-badge w-24 h-24 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center shadow-2xl shadow-indigo-500/20 relative overflow-hidden z-10">
+                <div class="absolute inset-0 bg-gradient-to-tr from-indigo-600/30 to-amber-500/20 rounded-3xl"></div>
+                <i class="fa-solid fa-coins text-amber-400 text-5xl relative z-10"></i>
             </div>
         </div>
 
-        <!-- Indicador de Carga Inferior -->
-        <div class="absolute bottom-12 flex items-center gap-2.5 text-xs text-slate-500 font-medium bg-slate-900/60 border border-slate-800/80 px-4 py-2 rounded-full">
+        <!-- Título y Subtítulo emergentes -->
+        <div class="anim-splash-text text-center">
+            <h1 class="text-3xl font-extrabold text-white tracking-tight flex items-center justify-center gap-2">
+                ConDIVISAS
+            </h1>
+            <p class="text-xs text-slate-400 font-medium mt-1">Cotizaciones en tiempo real</p>
+        </div>
+
+        <!-- Cartel de carga inferior -->
+        <div class="anim-splash-text absolute bottom-12 flex items-center gap-2.5 text-xs text-slate-500 font-medium bg-slate-900/60 border border-slate-800/80 px-4 py-2 rounded-full">
             <i class="fa-solid fa-circle-notch fa-spin text-indigo-400"></i>
             <span>Iniciando aplicación...</span>
         </div>
     </div>
 
+    <!-- Contenedor Principal de la App -->
     <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
         
         <!-- Header con botón de micrófono -->
@@ -215,9 +285,9 @@
         const splashScreen = document.getElementById('splashScreen');
 
         function hideSplashScreen() {
-            // Garantizar que la pantalla de inicio se muestre al menos 1.2s para una sensación suave
+            // Garantizamos que la animación de choque completa se aprecie (1.8s)
             const elapsedTime = Date.now() - splashStartTime;
-            const remainingDelay = Math.max(0, 1200 - elapsedTime);
+            const remainingDelay = Math.max(0, 1800 - elapsedTime);
 
             setTimeout(() => {
                 if (splashScreen) {
@@ -271,7 +341,7 @@
             } catch (err) {
                 rateInfo.textContent = "Error al conectar con el servidor.";
             } finally {
-                // Ocultar pantalla de inicio una vez finalizada la consulta
+                // Ocultar pantalla de inicio animada tras finalizar la carga
                 hideSplashScreen();
             }
         }
@@ -302,7 +372,6 @@
             rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}`;
         }
 
-        /* --- STREAMING_CHUNK:Lógica del micrófono y dictado por voz --- */
         function showVoiceMessage(msg, isError = false) {
             voiceStatus.classList.remove('hidden');
             voiceText.textContent = msg;
@@ -438,7 +507,6 @@
             return null;
         }
 
-        /* --- STREAMING_CHUNK:Asignación de Event Listeners e inicialización --- */
         micBtn.addEventListener('click', () => {
             if (isListening) {
                 stopMicrophone();
