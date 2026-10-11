@@ -33,19 +33,6 @@
             font-weight: 600;
         }
 
-        /* Animación de pulso cuando el micrófono está activo */
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-
-        .mic-active {
-            animation: pulse-ring 1.4s infinite;
-            background-color: #ef4444 !important;
-            color: #ffffff !important;
-        }
-
         /* Scrollbar elegante */
         ::-webkit-scrollbar {
             width: 6px;
@@ -171,24 +158,14 @@
     <!-- Contenedor Principal de la App -->
     <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative">
         
-        <!-- Header con botón de micrófono -->
-        <div class="flex items-center justify-between mb-5">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-coins text-amber-400"></i> ConDIVISAS
                 </h1>
                 <p class="text-xs text-slate-400 font-medium">Cotizaciones en tiempo real</p>
             </div>
-
-            <!-- Botón de micrófono -->
-            <button id="micBtn" type="button" class="w-11 h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer" title="Dictar por voz">
-                <i id="micIcon" class="fa-solid fa-microphone text-base"></i>
-            </button>
-        </div>
-
-        <!-- Cartel flotante de estado de voz -->
-        <div id="voiceStatus" class="mb-4 p-3 rounded-2xl bg-slate-800/90 border border-slate-700/60 hidden text-center transition-all">
-            <p id="voiceText" class="text-xs font-semibold text-amber-300">Escuchando... habla ahora (Ej: 100 dólares a pesos)</p>
         </div>
 
         <form id="converterForm" class="space-y-4" onsubmit="event.preventDefault();">
@@ -245,28 +222,26 @@
 
     <script>
         const currencies = [
-            { code: "USD", name: "Dólar estadounidense", keywords: ["dólares", "dólar", "dolares", "dolar", "usd"] },
-            { code: "EUR", name: "Euro", keywords: ["euros", "euro", "eur"] },
-            { code: "ARS", name: "Peso argentino (Blue)", keywords: ["pesos argentinos", "peso argentino", "argentinos", "pesos", "ars"] },
-            { code: "BOB", name: "Boliviano", keywords: ["bolivianos", "boliviano", "bob"] },
-            { code: "BRL", name: "Real brasileño", keywords: ["reales", "real", "brl"] },
-            { code: "CAD", name: "Dólar canadiense", keywords: ["dólar canadiense", "dolares canadienses", "cad"] },
-            { code: "CHF", name: "Franco suizo", keywords: ["francos", "franco suizo", "chf"] },
-            { code: "CLP", name: "Peso chileno", keywords: ["pesos chilenos", "peso chileno", "clp"] },
-            { code: "COP", name: "Peso colombiano", keywords: ["pesos colombianos", "peso colombiano", "cop"] },
-            { code: "GBP", name: "Libra esterlina", keywords: ["libras", "libra", "gbp"] },
-            { code: "HKD", name: "Dólar de Hong Kong", keywords: ["dólar de hong kong", "hkd"] },
-            { code: "JPY", name: "Yen japonés", keywords: ["yenes", "yen", "jpy"] },
-            { code: "MXN", name: "Peso mexicano", keywords: ["pesos mexicanos", "peso mexicano", "mxn"] },
-            { code: "PEN", name: "Sol peruano", keywords: ["soles", "sol peruano", "pen"] },
-            { code: "PYG", name: "Guaraní paraguayo", keywords: ["guaraníes", "guarani", "pyg"] },
-            { code: "SGD", name: "Dólar de Singapur", keywords: ["dólar de singapur", "sgd"] },
-            { code: "UYU", name: "Peso uruguayo", keywords: ["pesos uruguayos", "peso uruguayo", "uyu"] }
+            { code: "USD", name: "Dólar estadounidense" },
+            { code: "EUR", name: "Euro" },
+            { code: "ARS", name: "Peso argentino (Blue)" },
+            { code: "BOB", name: "Boliviano" },
+            { code: "BRL", name: "Real brasileño" },
+            { code: "CAD", name: "Dólar canadiense" },
+            { code: "CHF", name: "Franco suizo" },
+            { code: "CLP", name: "Peso chileno" },
+            { code: "COP", name: "Peso colombiano" },
+            { code: "GBP", name: "Libra esterlina" },
+            { code: "HKD", name: "Dólar de Hong Kong" },
+            { code: "JPY", name: "Yen japonés" },
+            { code: "MXN", name: "Peso mexicano" },
+            { code: "PEN", name: "Sol peruano" },
+            { code: "PYG", name: "Guaraní paraguayo" },
+            { code: "SGD", name: "Dólar de Singapur" },
+            { code: "UYU", name: "Peso uruguayo" }
         ];
 
         let ratesData = {};
-        let recognition = null;
-        let isListening = false;
         let splashStartTime = Date.now();
 
         const fromSelect = document.getElementById('fromCurrency');
@@ -278,14 +253,9 @@
         const refreshBtn = document.getElementById('refreshBtn');
         const fromLabel = document.getElementById('fromLabel');
         const toLabel = document.getElementById('toLabel');
-        const micBtn = document.getElementById('micBtn');
-        const micIcon = document.getElementById('micIcon');
-        const voiceStatus = document.getElementById('voiceStatus');
-        const voiceText = document.getElementById('voiceText');
         const splashScreen = document.getElementById('splashScreen');
 
         function hideSplashScreen() {
-            // Garantizamos que la animación de choque completa se aprecie (1.8s)
             const elapsedTime = Date.now() - splashStartTime;
             const remainingDelay = Math.max(0, 1800 - elapsedTime);
 
@@ -341,7 +311,6 @@
             } catch (err) {
                 rateInfo.textContent = "Error al conectar con el servidor.";
             } finally {
-                // Ocultar pantalla de inicio animada tras finalizar la carga
                 hideSplashScreen();
             }
         }
@@ -371,149 +340,6 @@
             resultInput.value = converted.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             rateInfo.textContent = `1 ${from} = ${unitRate.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} ${to}`;
         }
-
-        function showVoiceMessage(msg, isError = false) {
-            voiceStatus.classList.remove('hidden');
-            voiceText.textContent = msg;
-            voiceText.className = isError ? "text-xs font-semibold text-red-400" : "text-xs font-semibold text-amber-300";
-        }
-
-        function stopMicrophone() {
-            isListening = false;
-            micBtn.classList.remove('mic-active');
-            micIcon.className = 'fa-solid fa-microphone text-base';
-
-            if (recognition) {
-                try { recognition.stop(); } catch(e){}
-            }
-
-            setTimeout(() => {
-                if (!isListening) voiceStatus.classList.add('hidden');
-            }, 3500);
-        }
-
-        function startListening() {
-            const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechClass) {
-                showVoiceMessage("Tu navegador o WebView no soporta reconocimiento de voz.", true);
-                return;
-            }
-
-            recognition = new SpeechClass();
-            recognition.lang = 'es-ES';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            recognition.onstart = () => {
-                isListening = true;
-                micBtn.classList.add('mic-active');
-                micIcon.className = 'fa-solid fa-microphone-lines text-base';
-                showVoiceMessage("Escuchando... habla ahora (ej: 100 dólares a pesos)");
-            };
-
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                showVoiceMessage(`Procesado: "${text}"`);
-                parseVoiceCommand(text.toLowerCase());
-            };
-
-            recognition.onerror = (e) => {
-                if (e.error === 'no-speech') {
-                    showVoiceMessage("No se detectó voz. Vuelve a intentarlo.", true);
-                } else if (e.error === 'not-allowed') {
-                    showVoiceMessage("Debes autorizar el permiso de micrófono.", true);
-                } else {
-                    showVoiceMessage("Error al escuchar: " + e.error, true);
-                }
-                stopMicrophone();
-            };
-
-            recognition.onend = () => {
-                stopMicrophone();
-            };
-
-            try {
-                recognition.start();
-            } catch (err) {
-                showVoiceMessage("No se pudo iniciar el micrófono.", true);
-                stopMicrophone();
-            }
-        }
-
-        function parseVoiceCommand(text) {
-            let num = null;
-            const wordNumbers = {
-                "un": 1, "uno": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
-                "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10,
-                "veinte": 20, "cincuenta": 50, "cien": 100, "ciento": 100,
-                "quinientos": 500, "mil": 1000
-            };
-
-            const numMatch = text.match(/\d+([.,]\d+)?/);
-            if (numMatch) {
-                num = parseFloat(numMatch[0].replace(',', '.'));
-            } else {
-                for (let word in wordNumbers) {
-                    if (text.includes(word)) {
-                        num = wordNumbers[word];
-                        break;
-                    }
-                }
-            }
-
-            if (num && !isNaN(num)) {
-                amountInput.value = num;
-            }
-
-            let foundFrom = null;
-            let foundTo = null;
-
-            const parts = text.split(/\b(a|en|por)\b/i);
-
-            if (parts.length >= 3) {
-                foundFrom = findCurrencyMatch(parts[0]);
-                foundTo = findCurrencyMatch(parts.slice(2).join(' '));
-            } else {
-                const matches = [];
-                currencies.forEach(c => {
-                    c.keywords.forEach(kw => {
-                        if (text.includes(kw)) {
-                            matches.push({ code: c.code, idx: text.indexOf(kw) });
-                        }
-                    });
-                });
-                matches.sort((a, b) => a.idx - b.idx);
-                if (matches.length >= 2) {
-                    foundFrom = matches[0].code;
-                    foundTo = matches[1].code;
-                } else if (matches.length === 1) {
-                    foundTo = matches[0].code;
-                }
-            }
-
-            if (foundFrom) fromSelect.value = foundFrom;
-            if (foundTo) toSelect.value = foundTo;
-
-            calculateConversion();
-        }
-
-        function findCurrencyMatch(subText) {
-            for (const c of currencies) {
-                for (const kw of c.keywords) {
-                    if (subText.includes(kw)) return c.code;
-                }
-            }
-            return null;
-        }
-
-        micBtn.addEventListener('click', () => {
-            if (isListening) {
-                stopMicrophone();
-            } else {
-                startListening();
-            }
-        });
 
         amountInput.addEventListener('input', calculateConversion);
         fromSelect.addEventListener('change', calculateConversion);
